@@ -1,24 +1,60 @@
-name: Insider Trading Alert
+import requests
+from bs4 import BeautifulSoup
+import os
+import smtplib, ssl
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
-on:
-  schedule:
-    - cron:  '0 9 * * *'  # Run daily at 9:00 AM
+def extract_tickers(url):
+    """Fetches table data from a URL and extracts tickers."""
+    response = requests.get(url)
+    soup = BeautifulSoup(response.text, 'html.parser')
 
-jobs:
-  check_for_matches:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.x'
-      - name: Install dependencies
-        run: pip install -r requirements.txt
-      - name: Run script
-        env:
-          SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
-          RECEIVER_EMAIL: ${{ secrets.RECEIVER_EMAIL }}
-          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
-        run: python insider_trading_alert.py
+    table = soup.find('table', {'class': 'table-dark-row-cp'})  # Adjust table class if needed
+    if not table:
+        return set()  # Handle cases where the table doesn't exist
+
+    tickers = set()
+    for row in table.find_all('tr'):
+        ticker = row.find_all('td')[2].text.strip()  # Assuming ticker is in the 3rd column
+        tickers.add(ticker)
+    return tickers
+
+def send_email(matches):
+    email = os.environ["EMAIL"]
+    password = os.environ["EMAIL_PASSWORD"]
+
+    message = MIMEMultipart("alternative")
+    message["Subject"] = "Insider Trading & 52-Week Low Matches Found!"
+    message["From"] = email
+    message["To"] = email
+
+    text = f"The following matching tickers were found:\n\n" + "\n".join(f"- {ticker}" for ticker in sorted(matches))
+
+    part1 = MIMEText(text, "plain")
+    message.attach(part1)
+
+    # Create secure connection with server and send email
+    context = ssl.create_default_context()
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
+        server.login(email, password)
+        server.sendmail(
+            email, email, message.as_string()
+        )
+
+# Fetch tickers from Finviz
+finviz_insider_buy = extract_tickers("https://finviz.com/insidertrading.ashx?tc=1")
+finviz_insider_sell = extract_tickers("https://finviz.com/insidertrading.ashx?or=-10&tv=100000&tc=1&o=-transactionValue")
+
+# Fetch tickers from Yahoo Finance (52-week lows)
+yahoo_52week_low = extract_tickers("https://finance.yahoo.com/u/yahoo-finance/watchlists/fiftytwo-wk-low/")
+yahoo_52week_loss = extract_tickers("https://finance.yahoo.com/u/yahoo-finance/watchlists/fiftytwo-wk-loss/")  # Replace with correct URL
+
+# Cross-reference and find matches
+matches = finviz_insider_buy.intersection(yahoo_52week_low).union(
+    finviz_insider_sell.intersection(yahoo_52week_loss)
+)
+
+# Send email alert if matches are found
+if matches:
+    send_email(matches)
