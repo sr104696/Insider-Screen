@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4 # Update to v4
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -34,9 +34,9 @@ jobs:
           server_port: ${{ secrets.SMTP_PORT }}       # Use secret for port
           username: ${{ secrets.EMAIL }}
           password: ${{ secrets.EMAIL_PASSWORD }}
+          from: ${{ secrets.EMAIL }}  # Add the "from" field
           to: ${{ secrets.EMAIL }}
           subject: 'Insider Trading Alert Workflow Failed'
           body: |
             The Insider Trading Alert workflow failed to run successfully.
             Please check the workflow logs for details.
-
