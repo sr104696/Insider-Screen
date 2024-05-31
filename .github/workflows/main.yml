@@ -28,11 +28,15 @@ jobs:
 
       - name: Send failure notification (if applicable)
         if: failure()
-        uses: actions/send-email@v3  # Or your preferred email action
+        uses: dawidd6/action-send-mail@v3
         with:
+          server_address: ${{ secrets.SMTP_SERVER }}  # Use secret for server address
+          server_port: ${{ secrets.SMTP_PORT }}       # Use secret for port
+          username: ${{ secrets.EMAIL }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
           to: ${{ secrets.EMAIL }}
-          from: ${{ secrets.EMAIL }}  
           subject: 'Insider Trading Alert Workflow Failed'
           body: |
             The Insider Trading Alert workflow failed to run successfully.
             Please check the workflow logs for details.
+
