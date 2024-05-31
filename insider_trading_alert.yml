@@ -1,0 +1,11 @@
+name: Insider Trading Alert
+
+on:
+  schedule:
+    - cron:  '0 9 * * *'  # Run daily at 9:00 AM
+
+jobs:
+  check_for_matches:
+    runs-on: ubuntu-latest
+    steps: 
+     # Add the rest of your steps here (as provided in previous responses)
