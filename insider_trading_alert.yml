@@ -7,5 +7,18 @@ on:
 jobs:
   check_for_matches:
     runs-on: ubuntu-latest
-    steps: 
-     # Add the rest of your steps here (as provided in previous responses)
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run script
+        env:
+          SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
+          RECEIVER_EMAIL: ${{ secrets.RECEIVER_EMAIL }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+        run: python insider_trading_alert.py
