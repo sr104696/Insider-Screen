@@ -2,15 +2,15 @@ name: Insider Trading Alert
 
 on:
   schedule:
-    - cron: '0 9 * * 1-5'  # Run at 9:00 AM on weekdays (Mon-Fri)
-  workflow_dispatch:     # Allow manual triggers
+    - cron: '0 9 * * 1-5'  
+  workflow_dispatch:     
 
 jobs:
   check_for_matches:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4 # Update to v4
+        uses: actions/checkout@v4 
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -30,11 +30,11 @@ jobs:
         if: failure()
         uses: dawidd6/action-send-mail@v3
         with:
-          server_address: ${{ secrets.SMTP_SERVER }}  # Use secret for server address
-          server_port: ${{ secrets.SMTP_PORT }}       # Use secret for port
+          server_address: ${{ secrets.SMTP_SERVER }}  
+          server_port: ${{ secrets.SMTP_PORT }}       
           username: ${{ secrets.EMAIL }}
           password: ${{ secrets.EMAIL_PASSWORD }}
-          from: ${{ secrets.EMAIL }}  # Add the "from" field
+          from: ${{ secrets.EMAIL }} 
           to: ${{ secrets.EMAIL }}
           subject: 'Insider Trading Alert Workflow Failed'
           body: |
