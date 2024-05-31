@@ -2,15 +2,20 @@ name: Insider Trading Alert
 
 on:
   schedule:
-    - cron: '0 9 * * 1-5'  
-  workflow_dispatch:     
+    - cron: '0 9 * * 1-5'  # Run at 9:00 AM on weekdays (Mon-Fri)
+  workflow_dispatch:     # Allow manual triggers
 
 jobs:
   check_for_matches:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4 
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20' 
 
       - name: Set up Python
         uses: actions/setup-python@v4
