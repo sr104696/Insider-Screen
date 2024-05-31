@@ -1,0 +1,23 @@
+name: Insider Trading Alert
+
+on:
+  schedule:
+    - cron:  '0 9 * * *'  # Run daily at 9:00 AM
+
+jobs:
+  check_for_matches:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run script
+        env:
+          EMAIL: ${{ secrets.EMAIL }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+        run: python insider_trading_alert.py
