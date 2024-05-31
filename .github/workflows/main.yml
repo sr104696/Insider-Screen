@@ -2,7 +2,8 @@ name: Insider Trading Alert
 
 on:
   schedule:
-    - cron:  '0 9 * * *'  # Run daily at 9:00 AM
+    - cron: '0 9 * * 1-5'  # Run at 9:00 AM on weekdays (Mon-Fri)
+  workflow_dispatch:     # Allow manual triggers
 
 jobs:
   check_for_matches:
@@ -10,14 +11,28 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.x'
+          python-version: '3.x' 
+
       - name: Install dependencies
         run: pip install -r requirements.txt
+
       - name: Run script
         env:
           EMAIL: ${{ secrets.EMAIL }}
           EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
         run: python insider_trading_alert.py
+
+      - name: Send failure notification (if applicable)
+        if: failure()
+        uses: actions/send-email@v3  # Or your preferred email action
+        with:
+          to: ${{ secrets.EMAIL }}
+          from: ${{ secrets.EMAIL }}  
+          subject: 'Insider Trading Alert Workflow Failed'
+          body: |
+            The Insider Trading Alert workflow failed to run successfully.
+            Please check the workflow logs for details.
