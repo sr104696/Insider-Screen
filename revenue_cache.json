@@ -1,0 +1,3 @@
+{
+  "FOUR_revenue_cache": "{\"ticker\": \"FOUR\", \"revenue_data\": [{\"year\": 2023, \"revenue\": 2560000000.0, \"period_type\": \"annual\"}, {\"year\": 2024, \"revenue\": 3330000000.0, \"period_type\": \"annual\"}, {\"year\": 2024, \"quarter\": \"Q1\", \"revenue\": 848000000.0, \"period_type\": \"quarterly\"}], \"last_updated\": 1755976168.965855, \"setup_method\": \"cache_setup\"}"
+}
